@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.algamoney.api.event.RecursoCriadoEvent;
+import com.example.algamoney.api.event.RecursoEvent;
 import com.example.algamoney.api.model.Categoria;
 import com.example.algamoney.api.reposiroty.CategoriaRepository;
 import com.example.algamoney.api.service.CategoriaService;
@@ -44,11 +44,10 @@ public class CategoriaResource {
 	}
 	
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Categoria> adicionar(@Valid @RequestBody Categoria categoria, HttpServletResponse response) {
 		Categoria categoriaSalva= categoriaRepository.save(categoria);
 		
-		publisher.publishEvent(new RecursoCriadoEvent(this, response, categoriaSalva.getId()));
+		publisher.publishEvent(new RecursoEvent(this, response, categoriaSalva.getId()));
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
 	}

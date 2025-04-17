@@ -11,7 +11,7 @@ import com.example.algamoney.api.event.RecursoEvent;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class RecursoCriadoListener implements ApplicationListener<RecursoEvent> {
+public class RecursoAtualizadoListener implements ApplicationListener<RecursoEvent> {
 
 	@Override
 	public void onApplicationEvent(RecursoEvent recursoCriadoEvent) {
