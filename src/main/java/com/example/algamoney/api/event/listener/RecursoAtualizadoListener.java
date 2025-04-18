@@ -16,15 +16,14 @@ public class RecursoAtualizadoListener implements ApplicationListener<RecursoEve
 	@Override
 	public void onApplicationEvent(RecursoEvent recursoCriadoEvent) {
 		HttpServletResponse response = recursoCriadoEvent.getResponse();
-		Long codigo = recursoCriadoEvent.getCodigo();
 		
-		adicionarHeaderLocation(response, codigo);
+		adicionarHeaderLocation(response);
 	}
 	
-	private void adicionarHeaderLocation(HttpServletResponse response, Long codigo) {
+	private void adicionarHeaderLocation(HttpServletResponse response) {
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
 				.path("/{codigo}")
-				.buildAndExpand(codigo)
+				.buildAndExpand(1)
 				.toUri();
 		
 		response.setHeader("Location", uri.toASCIIString());

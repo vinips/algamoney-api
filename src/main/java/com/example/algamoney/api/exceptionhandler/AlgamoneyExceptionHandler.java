@@ -22,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.example.algamoney.api.exception.EntidadeEmUsoException;
 import com.example.algamoney.api.exception.EntidadeNaoEncontradaException;
 
 @ControllerAdvice
@@ -83,6 +84,15 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		
 		return super.handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+	}
+	
+	@ExceptionHandler({EntidadeEmUsoException.class})
+	public ResponseEntity<?> handleEntidadeEmUsoException(EntidadeEmUsoException ex, WebRequest request){
+		mensagemUsuario = messageSource.getMessage("recurso-em-uso", null, LocaleContextHolder.getLocale());
+		mensagemDesenvolvedor = ex.toString();
+		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
+		
+		return super.handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.CONFLICT, request);
 	}
 	
 	

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.algamoney.api.event.RecursoEvent;
 import com.example.algamoney.api.model.Pessoa;
-import com.example.algamoney.api.reposiroty.PessoaRepository;
 import com.example.algamoney.api.service.PessoaService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,9 +28,6 @@ import jakarta.validation.Valid;
 public class PessoaResource {
 
 	@Autowired
-	private PessoaRepository pessoaRepository;
-	
-	@Autowired
 	private ApplicationEventPublisher publisher;
 	
 	@Autowired
@@ -39,7 +35,7 @@ public class PessoaResource {
 
 	@GetMapping
 	public List<Pessoa> listar() {
-		return pessoaRepository.findAll();
+		return pessoaService.buscarTodos();
 	}
 	
 	@GetMapping("/{pessoaId}")
@@ -61,16 +57,13 @@ public class PessoaResource {
 	@DeleteMapping("/{pessoaId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long pessoaId) {
-		pessoaRepository.deleteById(pessoaId);
+		pessoaService.deletar(pessoaId);
 		
 	}
 	
 	@PutMapping("/{pessoaId}")
 	public ResponseEntity<Pessoa> atualizar(@PathVariable Long pessoaId, @Valid @RequestBody Pessoa pessoaEditada, HttpServletResponse response) {
 		Pessoa pessoa = pessoaService.atualizar(pessoaId, pessoaEditada);
-		
-		//CORRIGIR ISSO
-		publisher.publishEvent(new RecursoEvent(pessoa, response, pessoa.getId()));
 		
 		return ResponseEntity.ok(pessoa);
 	}

@@ -1,7 +1,6 @@
 package com.example.algamoney.api.resource;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.algamoney.api.event.RecursoEvent;
 import com.example.algamoney.api.model.Categoria;
-import com.example.algamoney.api.reposiroty.CategoriaRepository;
 import com.example.algamoney.api.service.CategoriaService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,9 +28,6 @@ import jakarta.validation.Valid;
 public class CategoriaResource {
 
 	@Autowired
-	private CategoriaRepository categoriaRepository;
-
-	@Autowired
 	private ApplicationEventPublisher publisher;
 	
 	@Autowired
@@ -40,12 +35,12 @@ public class CategoriaResource {
 	
 	@GetMapping
 	public List<Categoria> listar() {
-		return categoriaRepository.findAll();
+		return categoriaService.buscarTodos();
 	}
 	
 	@PostMapping
 	public ResponseEntity<Categoria> adicionar(@Valid @RequestBody Categoria categoria, HttpServletResponse response) {
-		Categoria categoriaSalva= categoriaRepository.save(categoria);
+		Categoria categoriaSalva= categoriaService.salvar(categoria);
 		
 		publisher.publishEvent(new RecursoEvent(this, response, categoriaSalva.getId()));
 		
@@ -54,14 +49,14 @@ public class CategoriaResource {
 	
 	@GetMapping("/{categoriaId}")
 	public ResponseEntity<Categoria> buscar(@PathVariable Long categoriaId) {
-		Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
-		return categoria.isPresent() ? ResponseEntity.ok(categoria.get()) :  ResponseEntity.notFound().build();
+		Categoria categoria = categoriaService.buscarOuFalhar(categoriaId);
+		return ResponseEntity.ok(categoria);
 	}
 	
 	@DeleteMapping("/{categoriaId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long categoriaId) {
-		categoriaRepository.deleteById(categoriaId);
+		categoriaService.deletar(categoriaId);
 	}
 	
 	@PutMapping("/{categoriaId}")
