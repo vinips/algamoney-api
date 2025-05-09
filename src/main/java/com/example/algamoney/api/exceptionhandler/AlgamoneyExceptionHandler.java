@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.example.algamoney.api.exception.EntidadeEmUsoException;
 import com.example.algamoney.api.exception.EntidadeNaoEncontradaException;
+import com.example.algamoney.api.exception.NegocioException;
 
 @ControllerAdvice
 public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
@@ -59,7 +62,7 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler({MethodArgumentTypeMismatchException.class})
 	public  ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
 		Object[] args = new Object[] {ex.getName(), ex.getValue(), ex.getValue().getClass().getSimpleName(), ex.getRequiredType().getSimpleName()};
-		mensagemUsuario = messageSource.getMessage("tipo-de-dado-invalido", args, LocaleContextHolder.getLocale());
+		mensagemUsuario = messageSource.getMessage("tipo.de.dado.invalido", args, LocaleContextHolder.getLocale());
 		mensagemDesenvolvedor = ex.toString();
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		
@@ -69,7 +72,7 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler({EmptyResultDataAccessException.class})
 	public ResponseEntity<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request){
-		mensagemUsuario = messageSource.getMessage("recurso-nao-encontrado", null, LocaleContextHolder.getLocale());
+		mensagemUsuario = messageSource.getMessage("recurso.nao.encontrado", null, LocaleContextHolder.getLocale());
 		mensagemDesenvolvedor = ex.toString();
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		
@@ -78,8 +81,7 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler({EntidadeNaoEncontradaException.class})
 	public ResponseEntity<?> handleEntidadeNaoEncontradaException(EntidadeNaoEncontradaException ex, WebRequest request){
-		
-		mensagemUsuario = messageSource.getMessage("recurso-nao-encontrado", null, LocaleContextHolder.getLocale());
+		mensagemUsuario = messageSource.getMessage("recurso.nao.encontrado", null, LocaleContextHolder.getLocale());
 		mensagemDesenvolvedor = ex.toString();
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		
@@ -88,11 +90,31 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler({EntidadeEmUsoException.class})
 	public ResponseEntity<?> handleEntidadeEmUsoException(EntidadeEmUsoException ex, WebRequest request){
-		mensagemUsuario = messageSource.getMessage("recurso-em-uso", null, LocaleContextHolder.getLocale());
+		mensagemUsuario = messageSource.getMessage("recurso.em.uso", null, LocaleContextHolder.getLocale());
 		mensagemDesenvolvedor = ex.toString();
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		
 		return super.handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.CONFLICT, request);
+	}
+	
+	@ExceptionHandler(NegocioException.class)
+	public ResponseEntity<?> NegocioException(NegocioException ex, WebRequest request) {
+		mensagemUsuario = ex.getMessage();
+		mensagemDesenvolvedor = ex.toString();
+		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
+
+		return super.handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+		
+	}
+	
+	
+	@ExceptionHandler({DataIntegrityViolationException.class})
+	public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+		mensagemUsuario = messageSource.getMessage("recurso.nao.encontrado", null, LocaleContextHolder.getLocale());
+		mensagemDesenvolvedor = ExceptionUtils.getRootCauseMessage(ex);
+		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
+		
+		return super.handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
 	
 	

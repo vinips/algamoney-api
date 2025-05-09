@@ -55,5 +55,12 @@ public class PessoaService {
 		}
 	}
 	
+	@Transactional
+	public void atualizarStatus(Long pessoaId, boolean status) {
+		Pessoa pessoa = buscarOuFalhar(pessoaId);
+		pessoa.setAtivo(status);
+		
+		salvar(pessoa);
+	}
 	
 }

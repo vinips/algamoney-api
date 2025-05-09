@@ -1,9 +1,9 @@
 package com.example.algamoney.api.resource;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.algamoney.api.event.RecursoEvent;
 import com.example.algamoney.api.model.Lancamento;
+import com.example.algamoney.api.reposiroty.filter.LancamentoFilter;
 import com.example.algamoney.api.service.LancamentoService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,8 +35,8 @@ public class LancamentoResource {
 	private ApplicationEventPublisher publisher;
 	
 	@GetMapping
-	public List<Lancamento> listar() {
-		return lancamentoService.buscarTodos();
+	public Page<Lancamento> listar(LancamentoFilter lancamentoFilter, Pageable pageable) {
+		return lancamentoService.buscarTodosComFiltro(lancamentoFilter, pageable);
 	}
 	
 	@GetMapping("/{lancamentoId}")
@@ -66,7 +67,6 @@ public class LancamentoResource {
 	public void remover(@PathVariable Long lancamentoId) {
 		lancamentoService.deletar(lancamentoId);
 	}
-	
 	
 	
 
